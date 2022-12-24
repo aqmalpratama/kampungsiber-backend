@@ -1,192 +1,41 @@
 import datetime
-from app import app
-from config import mysql
-from flask_mail import Mail, Message
-from flask import request, jsonify, session
-from werkzeug.security import generate_password_hash, check_password_hash
+import urllib.request
 import pymysql
 import json
 
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'aqmal.dev81@gmail.com'
-app.config['MAIL_PASSWORD'] = 'uglkauqrofjtkaac'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-mail = Mail(app)
+from flask import request, jsonify, session, render_template, redirect, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
 
-@app.route('/home')
-def home():
-    if 'email' in session:
-        email = session['email']
-        return jsonify({'message' : 'You are already logged in', 'email' : email})
+from app import app
+from config import mysql, mail
+from api.authApi import auth_api
+from api.mentorApi import mentor_api
+
+app.register_blueprint(auth_api)
+app.register_blueprint(mentor_api)
+
+@app.route('/mentor_stack')
+def mentor_stack():
+    sql = "select * from mentor_main join mentor_stack on mentor_main.id = mentor_stack.mentor_id join tech_stack on mentor_stack.tech _id = tech_stack.id"
+    connection = mysql.connect()
+    cursor = connection.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(rows)
+
+# dashboard
+@app.route('/dashboard')
+def dashboard():
+    if 'userdata' in session:
+        print(session)
+        return render_template('dashboard.html', userdata=session['userdata'])
     else:
-        resp = jsonify({'message' : 'Unauthorized'})
-        resp.status_code = 401
-        return resp
+        return redirect(url_for('signin'))
 
-@app.route('/signin', methods=['POST'])
-def signin():
-    try:
-        _json = request.json
-        _email = _json['email']
-        _password = _json['password']
-        if _email and _password and request.method == 'POST':
-            sql = "SELECT * FROM `user` WHERE `email`=%s"
-            data = (_email)
-            connection = mysql.connect()
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
-            cursor.execute(sql, data)
-            rows = cursor.fetchone()
-            email = rows['email']
-            password = rows['password']
-            if rows:
-                if check_password_hash(password, _password):
-                    session['email'] = email
-                    cursor.close()
-                    connection.close()
-                    response = jsonify('Sign in Success')
-                    response.status_code = 200
-                else:
-                    response = jsonify('Wrong password')
-                    response.status_code = 400
-            else:
-                response = jsonify('User not found')
-                response.status_code = 400
-    except Exception as e:
-        print(e)
-        response = jsonify('Failed to sign in')
-        response.status_code = 400
-    finally:
-        return response
-
-@app.route('/signout')
-def signout():
-    if 'email' in session:
-        session.pop('email', None)
-        resp = jsonify({'message' : 'You have successfully logged out'})
-        resp.status_code = 200
-        return resp
-    else:
-        resp = jsonify({'message' : 'Unauthorized'})
-        resp.status_code = 401
-        return resp
-
-@app.route('/signup', methods=['POST'])
-def signup():
-    try:
-        _json = request.json
-        _name = _json['name']
-        _email = _json['email']
-        _password = _json['password']
-        _reg_type = _json['reg_type']
-        if _name and _email and _password and request.method == 'POST':
-            sql = "INSERT INTO `user` (`email`,`password`,`reg_type`,`name`) VALUES (%s,%s,%s,%s)"
-            data = (_email, generate_password_hash(_password), _reg_type, _name)
-            connection = mysql.connect()
-            cursor = connection.cursor()
-            cursor.execute(sql, data)
-            print(cursor._last_executed)
-            user_id = cursor.lastrowid
-            if _reg_type == 1:
-                sql = "INSERT INTO `mentor_main` (`name`, `email`, `user_id`) VALUES (%s,%s,%s)"
-                data = (_name, _email, user_id)
-                cursor.execute(sql, data)
-            elif _reg_type == 2:
-                sql = "INSERT INTO `individual_main` (`name`, `email`, `user_id`) VALUES (%s,%s,%s)"
-                data = (_name, _email, user_id)
-                cursor.execute(sql, data)
-            elif _reg_type == 3:
-                sql = "INSERT INTO `business_main` (`name`, `email`, `user_id`) VALUES (%s,%s,%s)"
-                data = (_name, _email, user_id)
-                cursor.execute(sql, data)
-            else:
-                response = jsonify('Invalid registration type')
-                response.status_code = 400
-            connection.commit()
-            cursor.close()
-            connection.close()
-            response = jsonify('User has been registered successfully')
-            response.status_code = 200
-    except Exception as e:
-        print(e)
-        response = jsonify('Failed to register user')
-        response.status_code = 400
-    finally:
-        return response
-
-@app.route('/resetPassword', methods=['POST'])
-def resetPassword():
-    try:
-        _json = request.json
-        _email = _json['email']
-        if _email and request.method == 'POST':
-            sql = "SELECT * FROM `user` WHERE `email`=%s"
-            data = (_email)
-            connection = mysql.connect()
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
-            cursor.execute(sql, data)
-            rows = cursor.fetchone()
-            email = rows['email']
-            if rows:
-                msg = Message('Reset Password', sender = 'aqmal.dev81@gmail.com', recipients = [email])
-                msg.body = "test send email"
-                mail.send(msg)
-                cursor.close()
-                connection.close()
-                response = jsonify('Email sent')
-                response.status_code = 200
-            else:
-                response = jsonify('User not found')
-                response.status_code = 400
-    except Exception as e:
-        print(e)
-        response = jsonify('Failed to send email')
-        response.status_code = 400
-    finally:
-        return response
-
-@app.route('/confirmResetPassword', methods=['PUT'])
-def confirmResetPassword():
-    try:
-        _json = request.json
-        _email = _json['email']
-        _password = _json['password']
-        _confirmPassword = _json['confirmPassword']
-        if _email and _password and request.method == 'PUT':
-            sql = "SELECT * FROM `user` WHERE `email`=%s"
-            data = (_email)
-            connection = mysql.connect()
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
-            cursor.execute(sql, data)
-            rows = cursor.fetchone()
-            email = rows['email']
-            if rows:
-                if _password == _confirmPassword:
-                    hashed_password = generate_password_hash(_password)
-                    sql = "UPDATE `user` SET `password`=%s WHERE `email`=%s"
-                    data = (hashed_password, _email)
-                    cursor.execute(sql, data)
-                    connection.commit()
-                    cursor.close()
-                    connection.close()
-                    response = jsonify('Password changed')
-                    response.status_code = 200
-                else:
-                    response = jsonify('Password not match')
-                    response.status_code = 400
-            else:
-                response = jsonify('User not found')
-                response.status_code = 400
-    except Exception as e:
-        print(e)
-        response = jsonify('Failed to change password')
-        response.status_code = 400
-    finally:
-        return response
-
-@app.route('/consultationSession/upcoming/<int:user_id>', methods=['GET'])
-def consultationSessionUpcoming(user_id):
+@app.route('/dashboard/upcomingConsultation/<int:user_id>', methods=['GET'])
+def upcomingConsultation(user_id):
     try:
         if 'email' in session:
             sql = "select id, requestor_id, mentor_id, consultation_date, date_format(start_time, '%%T') as start_time, date_format(end_time, '%%T') as end_time, is_accepted_mentor, payment_status from consultation_request cr where cast(concat(consultation_date , ' ', start_time) as datetime) > now() and requestor_id = %s and is_accepted_mentor = 1 and payment_status = 1"
@@ -200,123 +49,238 @@ def consultationSessionUpcoming(user_id):
                 response = jsonify(rows)
                 response.status_code = 200
             else:
-                response = jsonify('No upcoming consultation session')
+                response = jsonify({'message' : 'No upcoming consultation'})
                 response.status_code = 400
         else:
-            response = jsonify('Unauthorized')
+            response = jsonify({'message' : 'Unauthorized access'})
             response.status_code = 401
     except Exception as e:
         print(e)
-        response = jsonify('Failed to get upcoming consultation session')
+        response = jsonify( {'message' : 'Something went wrong, contact admin'})
         response.status_code = 400
     finally:
         return response
 
-@app.route('/consultationSession/changeStatus/<int:user_id>', methods=['PUT'])
-def changeConsultationSessionStatus(user_id):
+@app.route('/dashboard/changeConsultationStatus/<int:user_id>', methods=['PUT'])
+def changeConsultationStatus(user_id):
     try:
-        _json = request.json
-        _is_accepted_mentor = _json['is_accepted_mentor']
+        data = request.form
+        is_accepted_mentor = data['is_accepted_mentor']
         if 'email' in session:
             sql = "UPDATE `consultation_request` SET `is_accepted_mentor`=%s WHERE `id`=%s"
-            data = (_is_accepted_mentor, user_id)
+            data = (is_accepted_mentor, user_id)
             connection = mysql.connect()
             cursor = connection.cursor()
             cursor.execute(sql, data)
             connection.commit()
             cursor.close()
             connection.close()
-            response = jsonify('Consultation session status changed')
+            response = jsonify({'message' : 'Consultation status updated'})
             response.status_code = 200
         else:
-            response = jsonify('Unauthorized')
+            response = jsonify({'message' : 'Unauthorized access'})
             response.status_code = 401
     except Exception as e:
         print(e)
-        response = jsonify('Failed to change consultation session status')
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
         response.status_code = 400
     finally:
         return response
 
-@app.route('/consultationSession', methods=['POST'])
+# profile
+@app.route('/profile/individual/<int:id>', methods=['GET'])
+def individualProfile(id):
+    try:
+        if 'email' in session:
+            sql = "select id, name, email, user_id from individual_main where id = %s"
+            data = (id)
+            connection = mysql.connect()
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(sql, data)
+            rows = cursor.fetchone()
+            if rows:
+                response = jsonify(rows)
+                response.status_code = 200
+            else:
+                response = jsonify({'message' : 'No profile'})
+                response.status_code = 400
+        else:
+            response = jsonify({'message' : 'Unauthorized access'})
+            response.status_code = 401
+    except Exception as e:
+        print(e)
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
+        response.status_code = 400
+    finally:
+        return response
+
+@app.route('/profile/mentor/<int:id>', methods=['GET'])
+def mentorProfile(id):
+    try:
+        if 'email' in session:
+            sql = "select id, name, email, user_id, linkedin_link, experience, jobtitle, company, rate_per_hour, agreement_pdf from mentor_main where id = %s"
+            data = (id)
+            connection = mysql.connect()
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(sql, data)
+            rows = cursor.fetchone()
+            if rows:
+                response = jsonify(rows)
+                response.status_code = 200
+            else:
+                response = jsonify({'message' : 'No profile'})
+                response.status_code = 400
+        else:
+            response = jsonify({'message' : 'Unauthorized access'})
+            response.status_code = 401
+    except Exception as e:
+        print(e)
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
+        response.status_code = 400
+    finally:
+        return response
+
+@app.route('/profile/corporate/<int:id>', methods=['GET'])
+def corporateProfile(id):
+    try:
+        if 'email' in session:
+            sql = "select id, name, email, user_id from business_main where id = %s"
+            data = (id)
+            connection = mysql.connect()
+            cursor = connection.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(sql, data)
+            rows = cursor.fetchone()
+            if rows:
+                response = jsonify(rows)
+                response.status_code = 200
+            else:
+                response = jsonify({'message' : 'No profile'})
+                response.status_code = 400
+        else:
+            response = jsonify({'message' : 'Unauthorized access'})
+            response.status_code = 401
+    except Exception as e:
+        print(e)
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
+        response.status_code = 400
+    finally:
+        return response
+
+@app.route('/profile/individual/<int:id>', methods=['PUT'])
+def updateIndividualProfile(id):
+    try:
+        data = request.form
+        name = data['name']
+        email = data['email']
+        if 'email' in session:
+            sql = "UPDATE `individual_main` SET `name`=%s, `email`=%s WHERE `id`=%s"
+            data = (name, email, id)
+            connection = mysql.connect()
+            cursor = connection.cursor()
+            cursor.execute(sql, data)
+            connection.commit()
+            cursor.close()
+            connection.close()
+            response = jsonify({'message' : 'Profile updated'})
+            response.status_code = 200
+        else:
+            response = jsonify({'message' : 'Unauthorized access'})
+            response.status_code = 401
+    except Exception as e:
+        print(e)
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
+        response.status_code = 400
+    finally:
+        return response
+
+@app.route('/profile/mentor/<int:user_id>', methods=['PUT'])
+def updateMentorProfile(user_id):
+    return jsonify({'message' : 'Profile updated'})
+
+@app.route('/profile/corporate/<int:user_id>', methods=['PUT'])
+def updateCorporateProfile(user_id):
+    return jsonify({'message' : 'Profile updated'})
+
+# Consultation
+@app.route('/consultation', methods=['POST'])
 def consultationSession():
     try:
-        _json = request.json
-        _requestor_id = _json['requestor_id']
-        _mentor_id = _json['mentor_id']
-        _consultation_date = _json['consultation_date']
-        _start_time = _json['start_time']
-        _end_time = _json['end_time']
+        data = request.form
+        requestorId = data['requestor_id']
+        mentorId = data['mentor_id']
+        consultationDate = data['consultation_date']
+        startTime = data['start_time']
+        endTime = data['end_time']
         if 'email' in session:
             sql = "INSERT INTO `consultation_request` (`requestor_id`, `mentor_id`, `consultation_date`, `start_time`, `end_time`) VALUES (%s,%s,%s,%s,%s)"
-            data = (_requestor_id, _mentor_id, _consultation_date, _start_time, _end_time)
+            data = (requestorId, mentorId, consultationDate, startTime, endTime)
             connection = mysql.connect()
             cursor = connection.cursor()
             cursor.execute(sql, data)
             connection.commit()
             cursor.close()
             connection.close()
-            response = jsonify('Consultation session created')
+            response = jsonify({'message' : 'Consultation session created'})
             response.status_code = 200
         else:
-            response = jsonify('Unauthorized')
+            response = jsonify({'message' : 'Unauthorized access'})
             response.status_code = 401
     except Exception as e:
         print(e)
-        response = jsonify('Failed to create consultation session')
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
         response.status_code = 400
     finally:
         return response
 
-@app.route('/consultationSession/payment/<int:consult_id>', methods=['PUT'])
+@app.route('/consultation/payment/<int:consult_id>', methods=['PUT'])
 def consultationSessionPayment(consult_id):
     try:
-        _json = request.json
-        _payment_status = _json['payment_status']
+        data = request.form
+        payment_status = data['payment_status']
         if 'email' in session:
             sql = "UPDATE `consultation_request` SET `payment_status`=%s WHERE `id`=%s"
-            data = (_payment_status, consult_id)
+            data = (payment_status, consult_id)
             connection = mysql.connect()
             cursor = connection.cursor()
             cursor.execute(sql, data)
             connection.commit()
             cursor.close()
             connection.close()
-            response = jsonify('Consultation session payment status changed')
+            response = jsonify({'message' : 'Consultation session payment updated'})
             response.status_code = 200
         else:
-            response = jsonify('Unauthorized')
+            response = jsonify({'message' : 'Unauthorized access'})
             response.status_code = 401
     except Exception as e:
         print(e)
-        response = jsonify('Failed to change consultation session payment status')
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
         response.status_code = 400
     finally:
         return response
 
-@app.route('/consultationSession/accept/', methods=['POST'])
+@app.route('/consultation/accept/', methods=['POST'])
 def consultationSessionAccept():
     try:
-        _json = request.json
-        _consultation_req_id = _json['consultation_req_id']
-        _link_zoom = _json['link_zoom']
+        data = request.form
+        consultationReqId = data['consultation_req_id']
+        linkZoom = data['link_zoom']
         if 'email' in session:
             sql = "insert into acc_consultation_req (consultation_req_id, link_zoom) values (%s, %s)"
-            data = (_consultation_req_id, _link_zoom)
+            data = (consultationReqId, linkZoom)
             connection = mysql.connect()
             cursor = connection.cursor()
             cursor.execute(sql, data)
             connection.commit()
             cursor.close()
             connection.close()
-            response = jsonify('Consultation session accepted')
+            response = jsonify({'message' : 'Consultation session accepted'})
             response.status_code = 200
         else:
-            response = jsonify('Unauthorized')
+            response = jsonify({'message' : 'Unauthorized access'})
             response.status_code = 401
     except Exception as e:
         print(e)
-        response = jsonify('Failed to accept consultation session')
+        response = jsonify({'message' : 'Something went wrong, contact admin'})
         response.status_code = 400
     finally:
         return response
