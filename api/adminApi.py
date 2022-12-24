@@ -74,17 +74,25 @@ def approval_consultation():
         data = request.form
         consultation_id = data['consultation_id']
         is_verify = int(data['is_verify'])
+        zoom_link = data['zoom_link']
         if request.method == 'POST':
-            sql = "update consultation_request set verify_payment = %s where id = %s"
-            data = (is_verify, consultation_id)
-            connection = mysql.connect()
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
-            cursor.execute(sql, data)
-            connection.commit()
+
             if is_verify == 1:
+                sql = "update consultation_request set verify_payment = %s, zoom_link = %s where id = %s"
+                data = (is_verify, zoom_link, consultation_id)
+                connection = mysql.connect()
+                cursor = connection.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(sql, data)
+                connection.commit()
                 response = jsonify({'message' : 'payment verified'})
                 response.status_code = 200
             elif is_verify == 0:
+                sql = "update consultation_request set verify_payment = %s, where id = %s"
+                data = (is_verify, zoom_link, consultation_id)
+                connection = mysql.connect()
+                cursor = connection.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(sql, data)
+                connection.commit()
                 response = jsonify({'message' : 'payment rejected'})
                 response.status_code = 200
     except Exception as e:
