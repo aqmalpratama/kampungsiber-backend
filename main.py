@@ -10,9 +10,17 @@ from app import app
 from config import mysql, mail
 from api.authApi import auth_api
 from api.mentorApi import mentor_api
+from api.testimonialApi import testimonial_api
+from api.profileApi import profile_api
+from api.consultationApi import consultation_api
+from api.adminApi import admin_api
 
 app.register_blueprint(auth_api)
 app.register_blueprint(mentor_api)
+app.register_blueprint(testimonial_api)
+app.register_blueprint(profile_api)
+app.register_blueprint(consultation_api)
+app.register_blueprint(admin_api)
 
 @app.route('/mentor_stack')
 def mentor_stack():

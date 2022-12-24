@@ -112,38 +112,7 @@ def signup():
     finally:
         return response
 
-# @app.route('/resetPassword', methods=['POST'])
-# def resetPassword():
-#     try:
-#         data = request.form
-#         email = data['email']
-#         if email and request.method == 'POST':
-#             sql = "SELECT * FROM `user` WHERE `email`=%s"
-#             data = (email)
-#             connection = mysql.connect()
-#             cursor = connection.cursor(pymysql.cursors.DictCursor)
-#             cursor.execute(sql, data)
-#             rows = cursor.fetchone()
-#             email = rows['email']
-#             if rows:
-#                 msg = Message('Reset Password', sender = 'aqmal.dev81@gmail.com', recipients = [email])
-#                 msg.body = "test send email"
-#                 mail.send(msg)
-#                 cursor.close()
-#                 connection.close()
-#                 response = jsonify({'message' : 'Email sent'})
-#                 response.status_code = 200
-#             else:
-#                 response = jsonify({'message' : 'Invalid email'})
-#                 response.status_code = 400
-#     except Exception as e:
-#         print(e)
-#         response = jsonify({'message' : 'Something went wrong, contact admin'})
-#         response.status_code = 400
-#     finally:
-#         return response
-
-@auth_api.route('/resetPassword', methods=['POST'])
+@auth_api.route('/reset-password', methods=['POST'])
 def resetPassword():
     try:
         data = request.form
@@ -175,6 +144,37 @@ def resetPassword():
     finally:
         return response
 
+@auth_api.route('/tech-stack', methods=['GET'])
+def techStack():
+    try:
+        connection = mysql.connect()
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT * FROM `tech_stack`")
+        rows = cursor.fetchall()
+        response = jsonify(rows)
+        response.status_code = 200
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+        return response
+    
+@auth_api.route('/avail-consult-time', methods=['GET'])
+def availConsultTime():
+    try:
+        connection = mysql.connect()
+        cursor = connection.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT id, date_format(start_time, '%T') as start_time, date_format(end_time, '%T') as end_time FROM `available_consult_time`")
+        rows = cursor.fetchall()
+        response = jsonify(rows)
+        response.status_code = 200
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+        return response
 
 app.config['PHOTO_FOLDER'] = 'uploads/photo'
 app.config['IJAZAH_FOLDER'] = 'uploads/ijazah'
