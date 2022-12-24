@@ -42,32 +42,7 @@ def dashboard():
     else:
         return redirect(url_for('signin'))
 
-@app.route('/dashboard/upcomingConsultation/<int:user_id>', methods=['GET'])
-def upcomingConsultation(user_id):
-    try:
-        if 'email' in session:
-            sql = "select id, requestor_id, mentor_id, consultation_date, date_format(start_time, '%%T') as start_time, date_format(end_time, '%%T') as end_time, is_accepted_mentor, payment_status from consultation_request cr where cast(concat(consultation_date , ' ', start_time) as datetime) > now() and requestor_id = %s and is_accepted_mentor = 1 and payment_status = 1"
-            data = (user_id)
-            connection = mysql.connect()
-            cursor = connection.cursor(pymysql.cursors.DictCursor)
-            cursor.execute(sql, data)
-            print(cursor._last_executed)
-            rows = cursor.fetchall()
-            if rows:
-                response = jsonify(rows)
-                response.status_code = 200
-            else:
-                response = jsonify({'message' : 'No upcoming consultation'})
-                response.status_code = 400
-        else:
-            response = jsonify({'message' : 'Unauthorized access'})
-            response.status_code = 401
-    except Exception as e:
-        print(e)
-        response = jsonify( {'message' : 'Something went wrong, contact admin'})
-        response.status_code = 400
-    finally:
-        return response
+
 
 @app.route('/dashboard/changeConsultationStatus/<int:user_id>', methods=['PUT'])
 def changeConsultationStatus(user_id):
