@@ -43,11 +43,21 @@ def approval_mentor():
             connection = mysql.connect()
             cursor = connection.cursor(pymysql.cursors.DictCursor)
             cursor.execute(sql, data)
+            
+            sql = "select email from user where id = %s"
+            data = (mentor_id)
+            cursor.execute(sql, data)
+            rows = cursor.fetchone()
+            email = rows['email']
             connection.commit()
             if is_approved == 1:
+                msg = Message(sender = 'aqmal.dev81@gmail.com', recipients = [email], subject = 'Approved Mentor', body = 'Berikut adalah lampiran perjanjian yang harus anda baca dan tanda tangani')
+                msg.attach('Partnership Agreement draft.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', open('uploads/agreement/Partnership Agreement draft.docx', 'rb').read())
+                mail.send(msg)
                 response = jsonify({'message' : 'Mentor approved'})
                 response.status_code = 200
             elif is_approved == 0:
+                msg = Message(sender = 'aqmal.dev81@gmail.com', recipients = [email], subject = 'Reject Mentor', body = 'Maaf anda tidak dapat menjadi mentor di aplikasi ini')
                 response = jsonify({'message' : 'Mentor rejected'})
                 response.status_code = 200
     except Exception as e:

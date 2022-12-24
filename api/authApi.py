@@ -103,6 +103,7 @@ def signup():
             connection.commit()
             cursor.close()
             connection.close()
+            
             response = jsonify({'message' : 'User created successfully'})
             response.status_code = 200
     except Exception as e:
