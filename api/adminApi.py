@@ -58,6 +58,7 @@ def approval_mentor():
                 response.status_code = 200
             elif is_approved == 0:
                 msg = Message(sender = 'aqmal.dev81@gmail.com', recipients = [email], subject = 'Reject Mentor', body = 'Maaf anda tidak dapat menjadi mentor di aplikasi ini')
+                mail.send(msg)
                 response = jsonify({'message' : 'Mentor rejected'})
                 response.status_code = 200
     except Exception as e:
