@@ -1,0 +1,598 @@
+{
+	"info": {
+		"_postman_id": "d760b9cb-2c6d-48f0-9882-5496992cb461",
+		"name": "dev-kampungsiber-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15911360"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "Sign In",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "raflysurya@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/signin",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign Out",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/signout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"signout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign Up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "Aqmal",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Pratama",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "aqmal.pratama81@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345",
+									"type": "text"
+								},
+								{
+									"key": "reg_type",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "birth_date",
+									"value": "2002-04-28",
+									"type": "text"
+								},
+								{
+									"key": "university",
+									"value": "unj",
+									"type": "text"
+								},
+								{
+									"key": "no_phone",
+									"value": "081234521723",
+									"type": "text"
+								},
+								{
+									"key": "linkedin",
+									"value": "ini link linkedin",
+									"type": "text"
+								},
+								{
+									"key": "photo[]",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/signup",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "aqmal.pratama81@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "123456",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tech Stack",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/tech-stack",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"tech-stack"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Available Time",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/avail-consult-time",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"avail-consult-time"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "consultation",
+			"item": [
+				{
+					"name": "Create Consultation Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "requestor_id",
+									"value": "75",
+									"type": "text"
+								},
+								{
+									"key": "mentor_id",
+									"value": "74",
+									"type": "text"
+								},
+								{
+									"key": "consultation_date",
+									"value": "2022-12-25",
+									"type": "text"
+								},
+								{
+									"key": "avail_time_id",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/consultation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"consultation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Upcoming Consultation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/consultation/upcoming/requestor/75",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"consultation",
+								"upcoming",
+								"requestor",
+								"75"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Mentor Approved",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/consultation/mentor-approve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"consultation",
+								"mentor-approve"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "profile",
+			"item": [
+				{
+					"name": "Get Profile User",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/74",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"74"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile Corporate",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/profile/user/74",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"user",
+								"74"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "Approval Mentor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "mentor_id",
+									"value": "74",
+									"type": "text"
+								},
+								{
+									"key": "is_approved",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/approval-mentor",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"approval-mentor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Payment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "consultation_id",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "is_verify",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/admin/verify-payment",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"verify-payment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Waiting List Mentor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/admin/waitinglist-mentor",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"admin",
+								"waitinglist-mentor"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "testimoni",
+			"item": [
+				{
+					"name": "Get Testimonial Company",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/testimonial/compro",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"testimonial",
+								"compro"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Testimonial Mentor",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:5000/testimonial/mentor/75",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"testimonial",
+								"mentor",
+								"75"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Testimonial Mentor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "mentor_id",
+									"value": "75",
+									"type": "text"
+								},
+								{
+									"key": "testimonial_content",
+									"value": "maslkdmlkamdklas maskdmlaksmd",
+									"type": "text"
+								},
+								{
+									"key": "requestor_id",
+									"value": "74",
+									"type": "text"
+								},
+								{
+									"key": "created_date",
+									"value": "2022-12-23",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/testimonial/mentor",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"testimonial",
+								"mentor"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Testimonial Company",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "user_id",
+									"value": "74",
+									"type": "text"
+								},
+								{
+									"key": "testimonial_content",
+									"value": "asndnasjkdnkjasndjk asndjkasnd naskj",
+									"type": "text"
+								},
+								{
+									"key": "created_date",
+									"value": "2022-12-23",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/testimonial/compro",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"testimonial",
+								"compro"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
