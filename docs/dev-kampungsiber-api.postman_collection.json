@@ -409,6 +409,11 @@
 									"key": "is_verify",
 									"value": "",
 									"type": "text"
+								},
+								{
+									"key": "zoom_link",
+									"value": "",
+									"type": "text"
 								}
 							]
 						},

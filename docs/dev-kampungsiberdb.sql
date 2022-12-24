@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 24, 2022 at 09:22 AM
+-- Generation Time: Dec 24, 2022 at 09:34 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -79,15 +79,16 @@ CREATE TABLE `consultation_request` (
   `consultation_date` date DEFAULT NULL,
   `is_accepted_mentor` int(11) DEFAULT NULL,
   `verify_payment` int(11) DEFAULT NULL,
-  `avail_time_id` int(11) DEFAULT NULL
+  `avail_time_id` int(11) DEFAULT NULL,
+  `zoom_link` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `consultation_request`
 --
 
-INSERT INTO `consultation_request` (`id`, `requestor_id`, `mentor_id`, `consultation_date`, `is_accepted_mentor`, `verify_payment`, `avail_time_id`) VALUES
-(5, 75, 74, '2022-12-25', NULL, 1, 1);
+INSERT INTO `consultation_request` (`id`, `requestor_id`, `mentor_id`, `consultation_date`, `is_accepted_mentor`, `verify_payment`, `avail_time_id`, `zoom_link`) VALUES
+(5, 75, 74, '2022-12-25', NULL, 1, 1, NULL);
 
 -- --------------------------------------------------------
 
