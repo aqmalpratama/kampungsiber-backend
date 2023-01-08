@@ -18,7 +18,7 @@ def waitinglistMentor():
     try:
         connection = mysql.connect()
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, user_id, full_name, email, is_approved_admin, date_format(birth_date, '%Y-%m-%d') as birth_date, photo_name, no_phone, rate_per_hour FROM `user_profile` WHERE `is_approved_admin` is NULL and `reg_type` = 1")
+        cursor.execute("SELECT user_profile.id, user_id, user_profile.full_name, email, is_approved_admin, date_format(birth_date, '%Y-%m-%d') as birth_date, photo_name, no_phone, rate_per_hour, stack_name , linkedin FROM `user_profile` join `vw_mentor_stack` on `vw_mentor_stack`.`mentor_id` = `user_profile`.`user_id` WHERE `is_approved_admin` is NULL and `reg_type` = 1")
         rows = cursor.fetchall()
         cursor.close()
         connection.close()

@@ -13,12 +13,12 @@ from config import mysql, mail
 
 consultation_api = Blueprint('consultation_api', __name__)
 
-@consultation_api.route('/consultation/mentor-approve', methods=['GET'])
+@consultation_api.route('/consultation/mentor-approved', methods=['GET'])
 def consultationMentor():
     try:
         connection = mysql.connect()
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM `user_profile` WHERE `reg_type` = 1 and `is_approved_admin` = 1")
+        cursor.execute("select * from user_profile join `vw_mentor_stack` on `vw_mentor_stack`.`mentor_id` = `user_profile`.`user_id` WHERE `reg_type` = 1 and `is_approved_admin` = 1")
         rows = cursor.fetchall()
         cursor.close()
         connection.close()

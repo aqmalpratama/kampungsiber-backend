@@ -1,12 +1,7 @@
-import datetime
 import pymysql
-import os
-import random
 
 from flask_mail import Message
-from flask import request, jsonify, session, render_template, redirect, url_for, Blueprint, render_template, abort
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
+from flask import request, jsonify, Blueprint
 
 from app import app
 from config import mysql, mail
@@ -16,9 +11,13 @@ testimonial_api = Blueprint('testimonial_api', __name__)
 @testimonial_api.route('/testimonial/compro', methods=['GET'])
 def getTestimonialCompro():
     try:
+        limit = request.args.get('limit')
         connection = mysql.connect()
         cursor = connection.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM `vw_testimonial_compro`")
+        if limit:
+            cursor.execute("SELECT * FROM `vw_testimonial_compro` LIMIT %s", int(limit))
+        else:
+            cursor.execute("SELECT * FROM `vw_testimonial_compro`")
         rows = cursor.fetchall()
         cursor.close()
         connection.close()
